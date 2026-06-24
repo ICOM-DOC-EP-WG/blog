@@ -3,10 +3,12 @@ name: Deploy Static SvelteKit Site
 on:
   push:
     branches:
-      - main # Change this to master if needed
+      - main
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
@@ -15,6 +17,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
@@ -30,13 +36,11 @@ jobs:
         run: npm install
 
       - name: Build Application
-        # Set repository variable BASE_PATH when needed.
         env:
           BASE_PATH: ${{ vars.BASE_PATH || '' }}
         run: npm run build
 
       - name: Prevent GitHub Jekyll Processing
-        # Fixes 404 errors on SvelteKit folders starting with underscores
         run: touch build/.nojekyll
 
       - name: Setup Pages
@@ -45,8 +49,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v5
         with:
-          # this should match the `pages` option in your adapter-static options
-          path: 'build/'
+          path: 'build/'  # Ensure this matches your SvelteKit output directory
 
   deploy:
     runs-on: ubuntu-latest
