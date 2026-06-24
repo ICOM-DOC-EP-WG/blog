@@ -9,43 +9,46 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://svelte.dev/docs/kit/integrations
-	// for more information about preprocessors
-  preprocess: [
-    vitePreprocess(),
-    mdsvex({
-      // The default mdsvex extension is .svx; this overrides that.
-      extensions: ['.md', '.svx'],
-
-      // Footnotes support via remark-footnotes (v2, compatible with mdsvex)
-      // GFM for tables, strikethrough, etc.
-      remarkPlugins: [remarkFootnotes, remarkGfm, remarkSupersub],
-
-      // Adds IDs to headings, then injects anchor links for those IDs.
-      rehypePlugins: [
-        rehypeSlug,
-        [
-          rehypeAutolinkHeadings,
-          {
-            behavior: 'append',
-            properties: {
-              className: ['heading-anchor']
-            },
-            content: {
-              type: 'text',
-              value: ' #'
-            }
-          }
-        ]
-      ]
-    })
-  ],
-  kit: {
-    adapter: adapter(),
-    paths: {
-      base: process.env.BASE_PATH ?? ''
-    }
-  },
+	preprocess: [
+		vitePreprocess(),
+		mdsvex({
+			extensions: ['.md', '.svx'],
+			remarkPlugins: [remarkFootnotes, remarkGfm, remarkSupersub],
+			rehypePlugins: [
+				rehypeSlug,
+				[
+					rehypeAutolinkHeadings,
+					{
+						behavior: 'append',
+						properties: {
+							className: ['heading-anchor']
+						},
+						content: {
+							type: 'text',
+							value: ' #'
+						}
+					}
+				]
+			]
+		})
+	],
+	kit: {
+		adapter: adapter(),
+		paths: {
+			base: process.env.BASE_PATH ?? ''
+		},
+		prerender: {
+			handleHttpError: ({ path, referrer, message }) => {
+				// Les tags qui n'existent que dans Zotero ne doivent pas faire échouer le build
+				// si Zotero est inaccessible depuis GitHub Actions
+				if (path.startsWith('/tags/')) {
+					console.warn(`[prerender] tag introuvable : ${path} (lié depuis ${referrer})`);
+					return;
+				}
+				throw new Error(message);
+			}
+		}
+	},
 	extensions: ['.svelte', '.svx', '.md']
 };
 
