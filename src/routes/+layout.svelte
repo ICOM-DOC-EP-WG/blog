@@ -41,6 +41,9 @@
 <Footer />
 
 <style>
+	header {
+    padding: 0;
+	}
 	.skip-link {
 		position: absolute;
 		clip-path: inset(50%);
@@ -96,36 +99,5 @@
 		text-decoration: none;
 	}
 
-	/* Paragraph numbering in the left margin */
-	:global(article) {
-		counter-reset: paragraph;
-		position: relative;
-	}
-
-	:global(article > p) {
-		counter-increment: paragraph;
-		position: relative;
-	}
-
-	:global(article > p::before) {
-		content: counter(paragraph);
-		position: absolute;
-		left: -2rem;
-		color: var(--color-link, #118bee);
-		opacity: 0.3;
-		user-select: none;
-	}
-
-	/* Do not number paragraphs inside footnotes */
-	:global(article .footnotes) {
-		counter-reset: none;
-	}
-
-	:global(article .footnotes p) {
-		counter-increment: none;
-	}
-
-	:global(article .footnotes p::before) {
-		content: none;
-	}
+	
 </style>

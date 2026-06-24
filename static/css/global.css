@@ -1,15 +1,95 @@
+/* Palette ICOM */
 :root {
-    color: #000;
+    --color-link: #1a3f7a;
+    --color-secondary: #7b2fa0;
+    --color-secondary-accent: #7b2fa00b;
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f0f2f5;
+    --color-text: #1a1a1a;
+    --color-text-secondary: #666;
+    --color-shadow: #e8eaf0;
+    --color-table: #1a3f7a;
+    --color-accent: #1a3f7a12;
+    --color-scrollbar: #b0bcd4;
 }
 
-/* Neutraliser les styles MVP.css pour les éléments de code Prism */
-/* Laisse les styles de prism.css s'appliquer sans interférence */
+/* Prism */
 code[class*="language-"],
 pre[class*="language-"] {
     background-color: revert;
     border-radius: revert;
     color: revert;
     display: revert;
+    margin: revert;
+    padding: revert;
+}
+
+/* ── Espacement global ── */
+
+/* Marges latérales responsives sur tous les blocs de mise en page */
+header, main, footer {
+    padding-left: clamp(1rem, 4vw, 3rem);
+    padding-right: clamp(1rem, 4vw, 3rem);
+}
+
+header {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+main {
+    padding-top: 0.5rem;
+    padding-bottom: 3rem;
+}
+
+/* MVP met 7rem sous la nav */
+nav {
+    margin-bottom: 1rem;
+}
+
+/* MVP centre les titres via --justify-important */
+h1, h2, h3, h4, h5, h6 {
+    text-align: left;
+}
+
+/* MVP met display:flex + justify-content:center sur section */
+section {
+    display: block;
+}
+
+/* MVP met padding:3rem sur header — trop grand dans les cartes */
+article header,
+div header {
+    padding: 0;
+}
+
+/* ── ArticleCard ── */
+article.postCard {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--color-bg-secondary);
+    margin: 0;
+}
+
+article.postCard:last-of-type {
+    border-bottom: none;
+}
+
+article.postCard > p {
+    margin: 0.4rem 0 0 0;
+}
+
+/* ── Bibliographie ── */
+.bib-layout button,
+.bib-layout select,
+.bib-layout input {
+    background-color: revert;
+    border: revert;
+    border-radius: revert;
+    color: revert;
+    display: revert;
+    font-size: revert;
+    font-weight: revert;
+    line-height: revert;
     margin: revert;
     padding: revert;
 }
