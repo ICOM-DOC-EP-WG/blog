@@ -324,11 +324,10 @@
 
 <style>
 	/* Layout */
-	.bib-layout {
-		max-width: 860px;
-		margin: 0 auto;
-		padding: 2rem 1rem 4rem;
-	}
+/* Après */
+.bib-layout {
+    padding-bottom: 2rem;
+}
 
 	/* En-tête */
 	.bib-header {
