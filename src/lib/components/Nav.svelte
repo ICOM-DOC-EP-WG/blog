@@ -20,7 +20,7 @@
 
 <nav aria-label="Navigation principale">
 	<a href={withBase('/')} aria-label="Accueil">
-		<img src={asset('/images/logo.svg')} alt={siteTitle} height="60" />
+		<img src={asset('/images/logo.png')} alt={siteTitle} height="60" />
 	</a>
 	<ul>
 		{#each visibleItems as item (item.route)}
