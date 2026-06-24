@@ -31,7 +31,6 @@ export const authorProfiles: Record<
 	icomwg: {
 		slug: 'EPD_WG',
 		name: 'Exhibition and Performance Documentation Working Group',
-		href: '/auteurs/epd_wg',
 		zoteroUsername: 'icomdoc.epwg',
 		zoteroUserId: 19754837,
 		zoteroGroupId: 6441975, // ID du groupe Zotero
