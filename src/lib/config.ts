@@ -22,7 +22,7 @@ export const authorProfiles: Record<
 		orcidId?: string;
 		zoteroUsername?: string;
 		zoteroUserId?: number;
-		zoteroGroupId?: string; 
+		zoteroGroupId?: number; 
 		zoteroCollectionId?: string; 
 		forgeService?: string;
 		forgeUsername?: string;
