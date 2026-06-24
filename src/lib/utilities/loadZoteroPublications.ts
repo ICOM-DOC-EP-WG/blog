@@ -3,7 +3,7 @@ import * as config from '$lib/config';
 const ZOTERO_API_BASE = 'https://api.zotero.org';
 const ITEM_KEY_BATCH_SIZE = 50;
 const DEFAULT_LIMIT = 200;
-const DEFAULT_STYLE = 'chicago-note-bibliography';
+const DEFAULT_STYLE = 'chicago-note-';
 const DEFAULT_LOCALE = 'fr-FR';
 
 type ReferenceContent = 'bib' | 'citation';
@@ -11,6 +11,8 @@ type ReferenceContent = 'bib' | 'citation';
 type ZoteroProfileConfig = {
 	zoteroUsername: string;
 	zoteroUserId: number;
+	zoteroGroupId: number; // ID du groupe Zotero
+	zoteroCollectionId: string; // ID de la collection
 };
 
 const DEFAULT_REFERENCE_CONTENT: ReferenceContent = 'bib';
@@ -76,15 +78,17 @@ type ZoteroItem = {
 };
 
 type ResolvedZoteroConfig =
-	| {
-		ok: true;
-		username: string;
-		userId: number;
-		style: string;
-		locale: string;
-		referenceContent: ReferenceContent;
-	}
-	| { ok: false; username: string; error: string };
+  | {
+      ok: true;
+      username: string;
+      userId?: number; // Optionnel
+      groupId?: number; // Optionnel
+      collectionId?: string; // Optionnel
+      style: string;
+      locale: string;
+      referenceContent: ReferenceContent;
+    }
+  | { ok: false; username: string; error: string };
 
 export interface TaggedPublication {
 	title: string;
@@ -97,47 +101,98 @@ export interface TaggedPublication {
 
 // Public API
 export const loadZoteroPublications = async (fetchFn: typeof fetch): Promise<ZoteroPublicationsResult> => {
-	const resolved = resolveZoteroConfig();
-	if (!resolved.ok) {
-		return { username: resolved.username, error: resolved.error };
-	}
+  const resolved = resolveZoteroConfig();
+  if (!resolved.ok) {
+    return { username: resolved.username, error: resolved.error };
+  }
 
-	const { username, userId, style, locale, referenceContent } = resolved;
-	const dataUrl = buildPublicationsUrl(userId, { format: 'json', include: 'data,citation,bib', style, locale });
-	const sourceUrl = buildPublicationsUrl(userId, {
-		format: 'bib',
-		content: referenceContent,
-		style,
-		locale
-	});
+  const { username, userId, groupId, collectionId, style, locale, referenceContent } = resolved;
 
-	try {
-		const { items, lastResponse } = await fetchAllPages(dataUrl, fetchFn);
-		const primaryItems = items.filter(isPrimaryPublication).toSorted(byParsedDateDesc);
-		const tagsByKey = await fetchTagsByKeys(
-			userId,
-			primaryItems.map((item) => item.key),
-			fetchFn
-		);
-		const publications = primaryItems
-			.map((item) => toPublication(item, tagsByKey.get(item.key), referenceContent))
-			.filter((publication): publication is ZoteroPublication => publication !== null);
+  // Si on utilise un groupe et une collection
+  if (groupId && collectionId) {
+    const dataUrl = buildGroupCollectionUrl(groupId, collectionId, {
+      format: 'json',
+      include: 'data,citation,bib',
+      style,
+      locale
+    });
+    const sourceUrl = buildGroupCollectionUrl(groupId, collectionId, {
+      format: 'bib',
+      content: referenceContent,
+      style,
+      locale
+    });
 
-		return {
-			username,
-			userId,
-			displayName: items[0]?.library?.name,
-			publications,
-			sourceUrl,
-			updatedAt: lastResponse?.headers.get('last-modified') ?? lastResponse?.headers.get('date') ?? undefined
-		};
-	} catch (caught) {
-		const message = caught instanceof Error ? caught.message : 'Unknown error';
-		return {
-			username,
-			error: `Error while fetching Zotero publications: ${message}`
-		};
-	}
+    try {
+      const { items, lastResponse } = await fetchAllPages(dataUrl, fetchFn);
+      const primaryItems = items.filter(isPrimaryPublication).toSorted(byParsedDateDesc);
+      const tagsByKey = await fetchTagsByKeysForGroup(
+        groupId,
+        primaryItems.map((item) => item.key),
+        fetchFn
+      );
+      const publications = primaryItems
+        .map((item) => toPublication(item, tagsByKey.get(item.key), referenceContent))
+        .filter((publication): publication is ZoteroPublication => publication !== null);
+
+      return {
+        username,
+        userId: undefined, // Pas d'userId dans ce cas
+        displayName: `Group: ${groupId}`, // Ou un nom personnalisé
+        publications,
+        sourceUrl,
+        updatedAt: lastResponse?.headers.get('last-modified') ?? lastResponse?.headers.get('date') ?? undefined
+      };
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : 'Unknown error';
+      return {
+        username,
+        error: `Error while fetching Zotero group collection: ${message}`
+      };
+    }
+  }
+
+  // Sinon, utiliser l'utilisateur (code existant)
+  const dataUrl = buildPublicationsUrl(userId!, {
+    format: 'json',
+    include: 'data,citation,bib',
+    style,
+    locale
+  });
+  const sourceUrl = buildPublicationsUrl(userId!, {
+    format: 'bib',
+    content: referenceContent,
+    style,
+    locale
+  });
+
+  try {
+    const { items, lastResponse } = await fetchAllPages(dataUrl, fetchFn);
+    const primaryItems = items.filter(isPrimaryPublication).toSorted(byParsedDateDesc);
+    const tagsByKey = await fetchTagsByKeys(
+      userId!,
+      primaryItems.map((item) => item.key),
+      fetchFn
+    );
+    const publications = primaryItems
+      .map((item) => toPublication(item, tagsByKey.get(item.key), referenceContent))
+      .filter((publication): publication is ZoteroPublication => publication !== null);
+
+    return {
+      username,
+      userId,
+      displayName: items[0]?.library?.name,
+      publications,
+      sourceUrl,
+      updatedAt: lastResponse?.headers.get('last-modified') ?? lastResponse?.headers.get('date') ?? undefined
+    };
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : 'Unknown error';
+    return {
+      username,
+      error: `Error while fetching Zotero publications: ${message}`
+    };
+  }
 };
 
 export const loadZoteroTaggedPublications = async (fetchFn: typeof fetch): Promise<TaggedPublication[]> => {
@@ -157,80 +212,101 @@ export const loadZoteroTaggedPublications = async (fetchFn: typeof fetch): Promi
 };
 
 const resolveZoteroConfig = (): ResolvedZoteroConfig => {
-	const zoteroProfile = findZoteroProfile();
-	const username = (zoteroProfile?.zoteroUsername || '').trim();
-	if (!username) {
-		return {
-			ok: false,
-			username: '',
-			error: 'Zotero username is not configured in src/lib/config.ts (authorProfiles.*.zoteroUsername)'
-		};
-	}
+  const zoteroProfile = findZoteroProfile();
+  const username = (zoteroProfile?.zoteroUsername || '').trim();
 
-	const userId = toNumber(zoteroProfile?.zoteroUserId);
-	if (!userId) {
-		return {
-			ok: false,
-			username,
-			error: 'Zotero user ID is not configured in src/lib/config.ts (authorProfiles.*.zoteroUserId)'
-		};
-	}
+  if (!username) {
+    return {
+      ok: false,
+      username: '',
+      error: 'Zotero username is not configured in src/lib/config.ts (authorProfiles.*.zoteroUsername)'
+    };
+  }
 
-	return {
-		ok: true,
-		username,
-		userId,
-		style: (config.zoteroCitationStyle || DEFAULT_STYLE).trim(),
-		locale: (config.zoteroCitationLocale || DEFAULT_LOCALE).trim(),
-		referenceContent: config.zoteroReferenceContent === 'citation' ? 'citation' : DEFAULT_REFERENCE_CONTENT
-	};
+  // Vérifier si on utilise un groupe et une collection
+  if (zoteroProfile?.zoteroGroupId && zoteroProfile?.zoteroCollectionId) {
+    return {
+      ok: true,
+      username,
+      groupId: zoteroProfile.zoteroGroupId,
+      collectionId: zoteroProfile.zoteroCollectionId,
+      style: (config.zoteroCitationStyle || DEFAULT_STYLE).trim(),
+      locale: (config.zoteroCitationLocale || DEFAULT_LOCALE).trim(),
+      referenceContent: config.zoteroReferenceContent === 'citation' ? 'citation' : DEFAULT_REFERENCE_CONTENT
+    };
+  }
+
+  // Sinon, utiliser l'utilisateur
+  const userId = toNumber(zoteroProfile?.zoteroUserId);
+  if (!userId) {
+    return {
+      ok: false,
+      username,
+      error: 'Zotero user ID is not configured in src/lib/config.ts (authorProfiles.*.zoteroUserId)'
+    };
+  }
+
+  return {
+    ok: true,
+    username,
+    userId,
+    style: (config.zoteroCitationStyle || DEFAULT_STYLE).trim(),
+    locale: (config.zoteroCitationLocale || DEFAULT_LOCALE).trim(),
+    referenceContent: config.zoteroReferenceContent === 'citation' ? 'citation' : DEFAULT_REFERENCE_CONTENT
+  };
 };
 
 const findZoteroProfile = (): (ZoteroProfileConfig & { id: string }) | null => {
-	for (const [id, profile] of Object.entries(config.authorProfiles)) {
-		if (profile.zoteroUsername && profile.zoteroUserId) {
-			return {
-				id,
-				zoteroUsername: profile.zoteroUsername,
-				zoteroUserId: profile.zoteroUserId
-			};
-		}
-	}
-
-	return null;
+  for (const [id, profile] of Object.entries(config.authorProfiles)) {
+    // Vérifier si c'est un utilisateur ou un groupe
+    if (
+      (profile.zoteroUsername && profile.zoteroUserId) ||
+      (profile.zoteroUsername && profile.zoteroGroupId && profile.zoteroCollectionId)
+    ) {
+      return {
+        id,
+        zoteroUsername: profile.zoteroUsername,
+        zoteroUserId: profile.zoteroUserId,
+        zoteroGroupId: profile.zoteroGroupId,
+        zoteroCollectionId: profile.zoteroCollectionId
+      };
+    }
+  }
+  return null;
 };
 
-const buildPublicationsUrl = (
-	userId: number,
-	options?: {
-		format?: 'json' | 'bib';
-		style?: string;
-		locale?: string;
-		include?: string;
-		content?: ReferenceContent;
-		limit?: number;
-		sort?: string;
-		direction?: 'asc' | 'desc';
-	}
+const buildGroupCollectionUrl = (
+  groupId: number,
+  collectionId: string,
+  options?: {
+    format?: 'json' | 'bib';
+    style?: string;
+    locale?: string;
+    include?: string;
+    content?: ReferenceContent;
+    limit?: number;
+    sort?: string;
+    direction?: 'asc' | 'desc';
+  }
 ): string => {
-	const format = options?.format || 'json';
-	const params = new URLSearchParams({
-		format,
-		limit: String(options?.limit ?? DEFAULT_LIMIT),
-		sort: options?.sort || 'date',
-		direction: options?.direction || 'desc'
-	});
+  const format = options?.format || 'json';
+  const params = new URLSearchParams({
+    format,
+    limit: String(options?.limit ?? DEFAULT_LIMIT),
+    sort: options?.sort || 'date',
+    direction: options?.direction || 'desc'
+  });
 
-	if (format === 'json') {
-		params.set('include', options?.include || 'data,citation,bib');
-	} else {
-		params.set('content', options?.content || 'bib');
-	}
+  if (format === 'json') {
+    params.set('include', options?.include || 'data,citation,bib');
+  } else {
+    params.set('content', options?.content || 'bib');
+  }
 
-	if (options?.style) params.set('style', options.style);
-	if (options?.locale) params.set('locale', options.locale);
+  if (options?.style) params.set('style', options.style);
+  if (options?.locale) params.set('locale', options.locale);
 
-	return `${ZOTERO_API_BASE}/users/${userId}/publications/items?${params.toString()}`;
+  return `${ZOTERO_API_BASE}/groups/${groupId}/collections/${collectionId}/items?${params.toString()}`;
 };
 
 const fetchAllPages = async (
@@ -283,6 +359,35 @@ const fetchTagsByKeys = async (
 	}
 
 	return tagsByKey;
+};
+
+const fetchTagsByKeysForGroup = async (
+  groupId: number,
+  keys: string[],
+  fetchFn: typeof fetch
+): Promise<Map<string, string[]>> => {
+  const cleanKeys = Array.from(new Set(keys.filter(Boolean)));
+  if (cleanKeys.length === 0) {
+    return new Map();
+  }
+
+  const batches = chunk(cleanKeys, ITEM_KEY_BATCH_SIZE);
+  const itemBatches = await Promise.all(
+    batches.map(async (batchKeys) => {
+      const response = await fetchFn(buildGroupItemsByKeyUrl(groupId, batchKeys));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Zotero item tags: ${response.status} ${response.statusText}`);
+      }
+      return (await response.json()) as ZoteroItem[];
+    })
+  );
+
+  const tagsByKey = new Map<string, string[]>();
+  for (const item of itemBatches.flat()) {
+    tagsByKey.set(item.key, toTags(item.data?.tags));
+  }
+
+  return tagsByKey;
 };
 
 const toPublication = (
@@ -550,4 +655,13 @@ const chunk = <T>(values: T[], size: number): T[][] => {
 		result.push(values.slice(index, index + size));
 	}
 	return result;
+};
+
+const buildGroupItemsByKeyUrl = (groupId: number, keys: string[]): string => {
+  const params = new URLSearchParams({
+    format: 'json',
+    include: 'data',
+    itemKey: keys.join(',')
+  });
+  return `${ZOTERO_API_BASE}/groups/${groupId}/items?${params.toString()}`;
 };

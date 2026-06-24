@@ -4,12 +4,12 @@
  * Update this file with your own values.
  **/
 
-export const siteTitle = 'Blog template';
-export const siteDescription = 'Built with the SvelteKit Ouvroir’s Static Blog Starter';
+export const siteTitle = 'Exhibition and Performance Documentation Icom Working Group Website';
+export const siteDescription = 'A website for the ICOM Working Group on Exhibition and Performance Documentation, built with SvelteKit and Markdown.';
 export const siteURL = 'example.com';
-export const siteLink = 'https://github.com/ouvroir/blog-template';
-export const siteAuthor = 'Ouvroir';
-export const contactInfo = 'emmanuel.chateau.dutier@umontreal.ca';
+export const siteLink = 'https://github.com/icom-doc-ep-wg/github.io/blog/';
+export const siteAuthor = 'ICOM';
+export const contactInfo = 'icomdoc.epwg@gmail.com';
 
 // Optional author directory used to resolve profile links from IDs.
 // Recommended: keep key and slug identical unless you need a separate internal ID.
@@ -22,24 +22,20 @@ export const authorProfiles: Record<
 		orcidId?: string;
 		zoteroUsername?: string;
 		zoteroUserId?: number;
+		zoteroGroupId?: string; 
+		zoteroCollectionId?: string; 
 		forgeService?: string;
 		forgeUsername?: string;
 	}
 > = {
-	emchateau: {
-		slug: 'emchateau',
-		name: 'Emmanuel Chateau-Dutier',
-		href: '/auteurs/emchateau',
-		orcidId: '0000-0003-4092-4569',
-		zoteroUsername: 'emchateau',
-		zoteroUserId: 4883,
-		forgeService: 'codeberg',
-		forgeUsername: 'emchateau'
-	},
-	ouvroir: {
-		slug: 'ouvroir',
-		name: 'Ouvroir',
-		href: '/auteurs/ouvroir'
+	icomwg: {
+		slug: 'EPD_WG',
+		name: 'Exhibition and Performance Documentation Working Group',
+		href: '/auteurs/epd_wg',
+		zoteroUsername: 'icomdoc.epwg',
+		zoteroUserId: 19754837,
+		zoteroGroupId: 6441975, // ID du groupe Zotero
+		zoteroCollectionId: 'EJT4TG8U', // ID de la collection
 	}
 };
 
@@ -67,7 +63,7 @@ export const navItems = [
 		// hidden omitted = visible by default
 	},
 	{
-		title: 'Projets',
+		title: 'Projects',
 		route: '/projects'
 	},
 	{
@@ -76,12 +72,12 @@ export const navItems = [
 		// hidden omitted = visible by default
 	},
 	{
-		title: 'Publications',
+		title: 'Bibliography',
 		route: '/publications'
 		// hidden omitted = visible by default
 	},
 	{
-		title: 'À propos',
+		title: 'About',
 		route: '/a-propos'
 		// hidden omitted = visible by default
 	}
