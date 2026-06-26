@@ -1,5 +1,5 @@
 ---
-title: "Mapping"
+title: "Mapping the current situation of exhibition/performance documentation and preservation practices in museums"
 author: "zrenaudie"
 description: ""
 date: "2026-06-24"
