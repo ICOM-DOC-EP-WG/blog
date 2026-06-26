@@ -11,4 +11,8 @@ One of our project is mapping our network by compiling a list of relevant projec
 
 The goal is to get a clearer picture of who is doing what, and where. 
 
+The first step is **benchmark and networking: identifying related existing initiatives, establishing partnerships and collaboration for information exchange.**
+
 Here is the guideline on how to add your project to wikidata : https://icom-doc-ep-wg.github.io/blog/blog/2026-06-23
+
+The second step is **Mapping the current situation of exhibition/performance documentation and preservation practices in museums (professional and institutional surveys)**

@@ -65,19 +65,21 @@ export const navItems = [
 		title: 'Projects',
 		route: '/projects'
 	},
-	{
-		title: 'Tags',
-		route: '/tags'
-		// hidden omitted = visible by default
-	},
-	{
+	{ 
+		title: 'Mapping', 
+		route: '/mapping' 
+	},{
 		title: 'Bibliography',
 		route: '/publications'
 		// hidden omitted = visible by default
-	},
-	{
+	},{
 		title: 'About',
 		route: '/a-propos'
+		// hidden omitted = visible by default
+	},
+		{
+		title: 'Tags',
+		route: '/tags'
 		// hidden omitted = visible by default
 	}
 ];
