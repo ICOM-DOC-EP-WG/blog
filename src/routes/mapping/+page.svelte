@@ -440,6 +440,7 @@ projects = bindings.flatMap((b) => {
 		{/if}
 
 		<footer class="map-footer">
+			Want to modify or add information to your project? Do it on wikidata, it will appear here! 
 			<a href="https://icom-doc-ep-wg.github.io/blog/blog/2026-06-23#how-to-add-your-reasearch-project-to-wikidata--a-step-by-step-guide" target="_blank" rel="noopener noreferrer">
 				How to add your research project to Wikidata: a step-by-step guide →
 			</a>
