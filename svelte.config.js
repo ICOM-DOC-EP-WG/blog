@@ -39,11 +39,9 @@ const config = {
 		},
 		prerender: {
 			handleHttpError: ({ path, referrer, message }) => {
-				// Les tags qui n'existent que dans Zotero ne doivent pas faire échouer le build
-				// si Zotero est inaccessible depuis GitHub Actions
-				if (path.startsWith('/tags/')) {
-					console.warn(`[prerender] tag introuvable : ${path} (lié depuis ${referrer})`);
-					return;
+				if (path.startsWith('/tags/') || path.startsWith('/mapping')) {
+            console.warn(`[prerender] ${path}: ${message}`);
+            return;
 				}
 				throw new Error(message);
 			}

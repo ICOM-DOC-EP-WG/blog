@@ -93,3 +93,20 @@ article.postCard > p {
     margin: revert;
     padding: revert;
 }
+
+/* Neutraliser MVP.css sur les boutons qui ne sont pas des CTA */
+.map-layout button,
+.map-layout select,
+.map-layout input {
+    background-color: revert;
+    border: revert;
+    border-radius: revert;
+    color: revert;
+    display: revert;
+    font-size: revert;
+    font-weight: revert;
+    line-height: revert;
+    margin: revert;
+    padding: revert;
+    filter: revert;
+}
