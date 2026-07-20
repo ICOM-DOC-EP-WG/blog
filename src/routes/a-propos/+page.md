@@ -45,3 +45,5 @@ The overall trajectory is: *build together, think together, share with the world
 - Jan–Jul: Share documentation strategies for preserving exhibitions and performances and ensuring future access
 - Jul–Nov: Organize a working group event to present findings and collectively define new objectives at the ICOM documentation Conference
 - Dec: Final report
+
+## Want to join ? Here is the [form](https://framaforms.org/joining-epd-working-group-icom-1768235763)
