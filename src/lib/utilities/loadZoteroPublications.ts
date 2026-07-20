@@ -469,17 +469,14 @@ const formatDetailValue = (item: ZoteroItem, key: string, value: unknown): strin
 	return String(value);
 };
 
+// Le lien externe est déjà affiché juste en dessous de la citation (ZoteroReference.svelte,
+// "View on ..."), donc on n'injecte plus de <a> dans le texte de la citation elle-même :
+// ça évite les décalages d'espacement selon le style CSL et le champ concerné.
 const resolveReference = (item: ZoteroItem, referenceContent: ReferenceContent): string | undefined => {
 	if (referenceContent === 'citation') {
-		const citation = asString(item.citation) || asString(item.data?.citation);
-		if (citation) return enrichWithAnchors('citation', citation, item);
-		const bib = asString(item.bib);
-		return enrichWithAnchors('bib', bib, item);
+		return asString(item.citation) || asString(item.data?.citation) || asString(item.bib);
 	}
-	const bib = asString(item.bib);
-	if (bib) return enrichWithAnchors('bib', bib, item);
-	const citation = asString(item.citation) || asString(item.data?.citation);
-	return enrichWithAnchors('citation', citation, item);
+	return asString(item.bib) || asString(item.citation) || asString(item.data?.citation);
 };
 
 const enrichWithAnchors = (
@@ -496,16 +493,29 @@ const enrichWithAnchors = (
 	if (doi) {
 		const doiUrl = `https://doi.org/${doi}`;
 		withDoi = value.includes(doiUrl)
-			? value.replaceAll(doiUrl, toReferenceAnchor(doiUrl, doi))
+			? replaceReferenceValue(value, doiUrl, doiUrl)
 			: replaceReferenceValue(value, doi, doiUrl);
 	}
 
 	return replaceReferenceValue(withDoi, url, url);
 };
 
+// Échappe les caractères spéciaux d'une chaîne pour l'utiliser dans une RegExp
+// (un DOI contient typiquement des points, des slashs et des parenthèses)
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const replaceReferenceValue = (value: string, text: string | undefined, href: string | undefined): string => {
 	if (!text || !href || !value.includes(text)) return value;
-	return value.replaceAll(text, toReferenceAnchor(href, text));
+
+	// On capture le caractère précédant chaque occurrence pour savoir s'il faut
+	// insérer un espace : certaines citations Zotero collent le DOI/l'URL
+	// directement à la ponctuation précédente (ex. "2017)10.7202/...")
+	const pattern = new RegExp(`(\\S)?${escapeRegExp(text)}`, 'g');
+
+	return value.replace(pattern, (_match, precedingChar: string | undefined) => {
+		const anchor = toReferenceAnchor(href, text);
+		return precedingChar ? `${precedingChar} ${anchor}` : anchor;
+	});
 };
 
 const toReferenceAnchor = (href: string, label: string): string =>
