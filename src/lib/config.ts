@@ -5,7 +5,7 @@
  **/
 
 export const siteTitle = 'Exhibition and Performance Documentation Icom Working Group Website';
-export const siteDescription = 'A website for the ICOM Working Group on Exhibition and Performance Documentation, built with SvelteKit and Markdown.';
+export const siteDescription = 'A website for the ICOM Working Group on Exhibition and Performance Documentation, built with SvelteKit and Markdown developped from the [ouvroir/blog-template](https://github.com/ouvroir/blog-template).';
 export const siteURL = 'example.com';
 export const siteLink = 'https://github.com/icom-doc-ep-wg/github.io/blog/';
 export const siteAuthor = 'ICOM';
