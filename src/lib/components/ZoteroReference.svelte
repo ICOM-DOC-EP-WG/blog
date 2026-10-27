@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { authorProfiles } from '$lib/config';
+	import * as config from '$lib/config';
+	import { memberAuthorDirectory } from '$lib/members';
 	import { normalizeZoteroAuthors } from '$lib/utilities/authors';
 
 	type Props = { publication: ZoteroPublication };
@@ -23,7 +24,12 @@
 	});
 
 	// Citation de repli si Zotero n'a pas fourni de formattedCitation
-	const normalizedAuthors = $derived(normalizeZoteroAuthors(publication.creators, authorProfiles));
+	const normalizedAuthors = $derived(
+		normalizeZoteroAuthors(publication.creators, {
+			...memberAuthorDirectory,
+			...config.zoteroProfiles
+		})
+	);
 	const fallbackCitation = $derived(() => {
 		const names = normalizedAuthors.map((a) => a.name).filter(Boolean);
 		const authorsPart = names.length > 0 ? `${names.join(', ')}. ` : '';

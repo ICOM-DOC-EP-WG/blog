@@ -8,7 +8,7 @@ const withBase = (path: string): string =>
 	path.startsWith('/') ? `${resolve('/')}${path.slice(1)}` : path;
 
 export const load: PageLoad = async () => {
-	const authors = Object.entries(config.authorProfiles)
+	const authors = Object.entries(config.zoteroProfiles)
 		.map(([id, profile]) => ({
 			id,
 			slug: profile.slug,

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import * as config from '$lib/config';
+	import { memberAuthorDirectory } from '$lib/members';
 
 	import PostNavigation from '$lib/components/PostNavigation.svelte';
 	import Toc from '$lib/components/Toc.svelte';
@@ -14,7 +15,7 @@
 	const nextPost = $derived(data.nextPost);
 	const metadata = $derived(post.metadata);
 	const Content = $derived(post.component);
-	const authors = $derived(normalizeBlogAuthors(metadata.author, config.authorProfiles));
+	const authors = $derived(normalizeBlogAuthors(metadata.author, memberAuthorDirectory));
 </script>
 
 <svelte:head>

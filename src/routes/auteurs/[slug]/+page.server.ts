@@ -6,7 +6,7 @@ import { env } from '$env/dynamic/private';
 import * as config from '$lib/config';
 import { loadOrcidProfile } from '$lib/utilities/loadOrcidProfile';
 
-type ConfigAuthorProfile = (typeof config.authorProfiles)[string];
+type ConfigAuthorProfile = (typeof config.zoteroProfiles)[string];
 
 type ResolvedAuthorProfile = ConfigAuthorProfile & {
 	id: string;
@@ -18,7 +18,7 @@ const withBase = (path: string): string =>
 	path.startsWith('/') ? `${resolve('/')}${path.slice(1)}` : path;
 
 const findAuthorProfile = (slug: string): ResolvedAuthorProfile | null => {
-	for (const [id, profile] of Object.entries(config.authorProfiles)) {
+	for (const [id, profile] of Object.entries(config.zoteroProfiles)) {
 		if (profile.slug === slug) {
 			return {
 				...profile,

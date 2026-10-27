@@ -75,7 +75,7 @@
 		{#if filteredMembers.length > 0}
 			<ul class="memberList">
 				{#each filteredMembers as member (member.id)}
-					<li class="memberRow">
+					<li class="memberRow" id={member.id}>
 						<div class="memberIdentity">
 							<h2>{member.name}</h2>
 							{#if member.affiliation}<p class="affiliation">{member.affiliation}</p>{/if}

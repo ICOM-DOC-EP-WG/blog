@@ -73,3 +73,16 @@ export const workingGroupMembers: WorkingGroupMember[] = [
 	{ id: 'yumeng-hou', name: 'Yumeng Hou', city: 'Singapore', country: 'Singapore' },
 	{ id: 'zoe-renaudie', name: 'Zoë Renaudie', affiliation: 'Université de Montréal', city: 'Montréal', country: 'Canada', authorId: 'zrenaudie' }
 ];
+
+export const memberAuthorDirectory = Object.fromEntries(
+	workingGroupMembers
+		.filter((member) => member.authorId)
+		.map((member) => [
+			member.authorId,
+			{
+				slug: member.id,
+				name: member.name,
+				href: `/membres#${member.id}`
+			}
+		])
+);

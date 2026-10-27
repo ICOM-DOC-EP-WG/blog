@@ -11,9 +11,8 @@ export const siteLink = 'https://github.com/icom-doc-ep-wg/github.io/blog/';
 export const siteAuthor = 'ICOM';
 export const contactInfo = 'icomdoc.epwg@gmail.com';
 
-// Optional author directory used to resolve profile links from IDs.
-// Recommended: keep key and slug identical unless you need a separate internal ID.
-export const authorProfiles: Record<
+// Zotero account settings belong to the working group, not to individual members.
+export const zoteroProfiles: Record<
 	string,
 	{
 		slug: string;

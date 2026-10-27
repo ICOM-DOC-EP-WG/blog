@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { authorProfiles } from '$lib/config';
+	import { memberAuthorDirectory } from '$lib/members';
 	import TagList from '$lib/components/TagList.svelte';
 	import { normalizeBlogAuthors } from '$lib/utilities/authors';
 
@@ -16,7 +16,7 @@
 
 	const { slug, title, date, authors, repo, link, tags }: Props = $props();
 
-	const normalizedAuthors = $derived(normalizeBlogAuthors(authors, authorProfiles));
+	const normalizedAuthors = $derived(normalizeBlogAuthors(authors, memberAuthorDirectory));
 	const authorLabel = 'By';
 	const url = $derived(resolve('/projects/[slug]', { slug }));
 	const displayDate = $derived(

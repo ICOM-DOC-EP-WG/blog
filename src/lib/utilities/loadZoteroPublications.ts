@@ -201,7 +201,7 @@ const resolveZoteroConfig = (): ResolvedZoteroConfig => {
 		return {
 			ok: false,
 			username: '',
-			error: 'Zotero username is not configured in src/lib/config.ts (authorProfiles.*.zoteroUsername)'
+					error: 'Zotero username is not configured in src/lib/config.ts (zoteroProfiles.*.zoteroUsername)'
 		};
 	}
 
@@ -222,7 +222,7 @@ const resolveZoteroConfig = (): ResolvedZoteroConfig => {
 		return {
 			ok: false,
 			username,
-			error: 'Zotero user ID is not configured in src/lib/config.ts (authorProfiles.*.zoteroUserId)'
+				error: 'Zotero user ID is not configured in src/lib/config.ts (zoteroProfiles.*.zoteroUserId)'
 		};
 	}
 
@@ -237,7 +237,7 @@ const resolveZoteroConfig = (): ResolvedZoteroConfig => {
 };
 
 const findZoteroProfile = (): (ZoteroProfileConfig & { id: string }) | null => {
-	for (const [id, profile] of Object.entries(config.authorProfiles)) {
+	for (const [id, profile] of Object.entries(config.zoteroProfiles)) {
 		if (
 			(profile.zoteroUsername && profile.zoteroUserId) ||
 			(profile.zoteroUsername && profile.zoteroGroupId && profile.zoteroCollectionId)

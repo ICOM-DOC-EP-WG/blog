@@ -1,8 +1,7 @@
 import { resolve } from '$app/paths';
 import type { PageLoad } from './$types';
 
-import * as config from '$lib/config';
-import { workingGroupMembers } from '$lib/members';
+import { memberAuthorDirectory, workingGroupMembers } from '$lib/members';
 import { loadPublishedPosts } from '$lib/utilities/loadPublishedPosts';
 import { loadProjects } from '$lib/utilities/loadProjects';
 import { normalizeBlogAuthors } from '$lib/utilities/authors';
@@ -34,7 +33,7 @@ export const load: PageLoad = async () => {
 	);
 
 	const addWork = (authorInput: Posts['author'], work: MemberWork, kind: 'articles' | 'projects') => {
-		for (const author of normalizeBlogAuthors(authorInput, config.authorProfiles)) {
+		for (const author of normalizeBlogAuthors(authorInput, memberAuthorDirectory)) {
 			const id = author.id || author.slug || author.name;
 			const rosterMember = workingGroupMembers.find((member) => member.authorId === id);
 			const memberId = rosterMember?.id || id;
