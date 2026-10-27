@@ -18,7 +18,7 @@
 		<div class="home-actions">
 			<a href={resolve('/blog')}>Blog</a>
 			<a href={resolve('/publications')}>Bibliography</a>
-			<a href={resolve('/projects')}>Projects</a>
+			<a href={resolve('/mapping')}>Mapping</a>
 		</div>
 	</div>
 
