@@ -54,6 +54,6 @@ export const formatReadingTime = (minutes: number): string => {
 		return '';
 	}
 
-	const value = new Intl.NumberFormat('fr-FR').format(minutes);
-	return `${value} min de lecture`;
+	const value = new Intl.NumberFormat('en').format(minutes);
+	return `${value} min read`;
 };

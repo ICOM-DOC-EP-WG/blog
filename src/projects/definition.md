@@ -1,6 +1,6 @@
 ---
 title: "Defining Exhibition and Performance Documentation"
-author: "zrenaudie, bstancic"
+author: ["zrenaudie", "bstancic"]
 description: ""
 date: "2026-06-24"
 tags: ["definition", ""]

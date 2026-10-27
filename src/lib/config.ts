@@ -57,29 +57,21 @@ export const navItems = [
 		hidden: true // Hide this item from menus
 	},
 	{
+		title: 'Projects',
+		route: '/projects'
+	},
+	{
 		title: 'Blog',
 		route: '/blog'
 		// hidden omitted = visible by default
 	},
 	{
-		title: 'Projects',
-		route: '/projects'
+		title: 'Members',
+		route: '/membres'
 	},
-	{ 
-		title: 'Mapping', 
-		route: '/mapping' 
-	},{
-		title: 'Bibliography',
-		route: '/publications'
-		// hidden omitted = visible by default
-	},{
+	{
 		title: 'About',
 		route: '/a-propos'
-		// hidden omitted = visible by default
-	},
-		{
-		title: 'Tags',
-		route: '/tags'
 		// hidden omitted = visible by default
 	}
 ];
