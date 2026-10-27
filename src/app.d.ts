@@ -114,7 +114,9 @@ declare global {
 		title: string;
 		itemType: string;
 		date?: string;
+		dateAdded?: string;
 		parsedDate?: string;
+		addedBy?: string;
 		creators: ZoteroCreator[];
 		tags?: string[];
 		abstractNote?: string;

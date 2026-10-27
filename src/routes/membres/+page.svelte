@@ -37,7 +37,6 @@
 </svelte:head>
 
 <div class="pageIntro">
-	<p class="eyebrow">ICOM Working Group</p>
 	<h1>Members</h1>
 	<p>People behind the group's work, publications, and projects.</p>
 </div>

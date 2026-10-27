@@ -105,6 +105,8 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 				formattedCitation: publication.formattedCitation,
 				itemType: 'document',
 				date: publication.date,
+				dateAdded: publication.dateAdded,
+				addedBy: publication.addedBy,
 				parsedDate: publication.parsedDate,
 				creators: [],
 				tags: publication.tags,

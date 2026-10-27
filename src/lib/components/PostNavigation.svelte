@@ -22,23 +22,25 @@
 </script>
 
 {#if previousPost || nextPost}
-	<nav aria-label="Navigation entre articles">
+	<nav aria-label="Article navigation">
 		{#if previousPost}
 			<a
 				href={url(previousPost.slug)}
 				rel="prev"
-				aria-label={`Article precedent: ${previousPost.title}`}
+				aria-label={`Previous article: ${previousPost.title}`}
 			>
-				← {previousPost.title}
+				<span class="direction">← Previous article</span>
+				<span class="title">{previousPost.title}</span>
 			</a>
 		{/if}
 		{#if nextPost}
 			<a
 				href={url(nextPost.slug)}
 				rel="next"
-				aria-label={`Article suivant: ${nextPost.title}`}
+				aria-label={`Next article: ${nextPost.title}`}
 			>
-				{nextPost.title} →
+				<span class="direction">Next article →</span>
+				<span class="title">{nextPost.title}</span>
 			</a>
 		{/if}
 	</nav>
@@ -47,19 +49,42 @@
 <style>
 	nav {
 		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
+		gap: 0.75rem;
 		margin-top: 3rem;
 	}
 
 	nav a {
+		display: grid;
 		flex: 1;
-		padding: 1rem;
-		border: 1px solid var(--color-bg-secondary);
-		border-radius: var(--border-radius);
+		align-content: start;
+		gap: 0.35rem;
+		min-width: 0;
+		padding: 0.85rem 1rem;
+		border-block: 1px solid var(--color-shadow);
+		color: var(--color-link);
+		text-decoration: none;
 	}
 
-	nav a[rel="next"] {
+	nav a:hover,
+	nav a:focus-visible {
+		background: var(--color-secondary-accent);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	.direction {
+		color: var(--color-text-secondary);
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+
+	.title {
+		font-weight: 600;
+		overflow-wrap: anywhere;
+	}
+
+	nav a[rel='next'] {
 		text-align: right;
 	}
 

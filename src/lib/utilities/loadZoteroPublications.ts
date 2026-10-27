@@ -32,7 +32,13 @@ type ZoteroItem = {
 	citation?: string;
 	bib?: string;
 	links?: { alternate?: { href?: string } };
-	meta?: { parsedDate?: string };
+	meta?: {
+		parsedDate?: string;
+		createdByUser?: {
+			name?: string;
+			username?: string;
+		};
+	};
 	library?: { name?: string };
 	data?: Record<string, unknown> & {
 		itemType?: string;
@@ -41,6 +47,7 @@ type ZoteroItem = {
 		citation?: string;
 		tags?: Array<{ tag?: string } | string>;
 		date?: string;
+		dateAdded?: string;
 		url?: string;
 		DOI?: string;
 		publisher?: string;
@@ -78,6 +85,8 @@ export interface TaggedPublication {
 	title: string;
 	formattedCitation?: string;
 	tags: string[];
+	dateAdded?: string;
+	addedBy?: string;
 	zoteroUrl?: string;
 	date?: string;
 	parsedDate?: string;
@@ -187,6 +196,8 @@ export const loadZoteroTaggedPublications = async (fetchFn: typeof fetch): Promi
 		title: publication.title,
 		formattedCitation: publication.formattedCitation,
 		tags: publication.tags ?? [],
+		dateAdded: publication.dateAdded,
+		addedBy: publication.addedBy,
 		zoteroUrl: publication.zoteroUrl,
 		date: publication.date,
 		parsedDate: publication.parsedDate
@@ -413,7 +424,9 @@ const toPublication = (
 		abstractNote: asString(data.abstractNote),
 		formattedCitation: formattedReference,
 		date: asString(data.date),
+		dateAdded: asString(data.dateAdded),
 		parsedDate: asString(item.meta?.parsedDate),
+		addedBy: asString(item.meta?.createdByUser?.name) || asString(item.meta?.createdByUser?.username),
 		creators: toCreators(data.creators),
 		tags: tagsFromItemsEndpoint ?? toTags(data.tags),
 		detailFields: toDetailFields(item),

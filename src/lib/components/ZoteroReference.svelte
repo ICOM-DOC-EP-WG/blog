@@ -22,7 +22,6 @@
 			return undefined;
 		}
 	});
-
 	// Citation de repli si Zotero n'a pas fourni de formattedCitation
 	const normalizedAuthors = $derived(
 		normalizeZoteroAuthors(publication.creators, {
@@ -74,6 +73,7 @@
 		margin: 0 0 0.35rem;
 		line-height: 1.55;
 		color: var(--color-text, #222);
+		overflow-wrap: anywhere;
 	}
 
 	/* Neutralise tout style global (badges, notes de bas de page, etc.) qui pourrait

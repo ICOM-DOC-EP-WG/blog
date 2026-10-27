@@ -15,7 +15,6 @@
 
 
 <div class="pageIntro">
-	<p class="eyebrow">Exhibition &amp; Performance Documentation</p>
 	<h1>Blog</h1>
 	<p class="introText">Notes, resources, and news from the working group.</p>
 	<p class="postCount">{data.posts.length} {data.posts.length === 1 ? 'recent post' : 'recent posts'}</p>

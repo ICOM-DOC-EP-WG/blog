@@ -15,7 +15,6 @@
 
 
 <div class="pageIntro">
-	<p class="eyebrow">Exhibition &amp; Performance Documentation</p>
 	<h1>Projects</h1>
 	<p class="introText">Initiatives and resources from the working group.</p>
 	<p class="projectCount">{data.projects.length} {data.projects.length === 1 ? 'project' : 'projects'}</p>

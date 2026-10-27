@@ -2,31 +2,32 @@
 	import type { PageProps } from './$types';
 	import * as config from '$lib/config';
 	import ZoteroReference from '$lib/components/ZoteroReference.svelte';
+	import ZoteroAddedMeta from '$lib/components/ZoteroAddedMeta.svelte';
 	import { formatDisplayDateTime } from '$lib/utilities/dates';
 
 	let { data }: PageProps = $props();
 
 	const ITEM_TYPE_LABELS: Record<string, string> = {
-		book: 'Livre',
-		journalArticle: 'Article de revue',
-		magazineArticle: 'Article de magazine',
-		newspaperArticle: 'Article de presse',
-		bookSection: 'Chapitre de livre',
-		conferencePaper: 'Article de conférence',
-		encyclopediaArticle: "Article d'encyclopédie",
-		dictionaryEntry: 'Entrée de dictionnaire',
-		presentation: 'Présentation',
+		book: 'Book',
+		journalArticle: 'Journal article',
+		magazineArticle: 'Magazine article',
+		newspaperArticle: 'Newspaper article',
+		bookSection: 'Book section',
+		conferencePaper: 'Conference paper',
+		encyclopediaArticle: 'Encyclopedia article',
+		dictionaryEntry: 'Dictionary entry',
+		presentation: 'Presentation',
 		document: 'Document',
-		report: 'Rapport',
-		thesis: 'Thèse / mémoire',
-		webpage: 'Page web',
-		blogPost: 'Billet de blogue'
+		report: 'Report',
+		thesis: 'Thesis',
+		webpage: 'Web page',
+		blogPost: 'Blog post'
 	};
 
 	const publications = $derived(data.zoteroPublications.publications ?? []);
-	const updatedAt = $derived(formatDisplayDateTime(data.zoteroPublications.updatedAt, 'fr-CA'));
+	const updatedAt = $derived(formatDisplayDateTime(data.zoteroPublications.updatedAt, 'en-GB'));
 
-	// --- État des filtres ---
+	// --- Filter state ---
 	let searchQuery = $state('');
 	let selectedType = $state('');
 	let selectedTag = $state('');
@@ -37,17 +38,17 @@
 	const allTypes = $derived(
 		Array.from(new Set(publications.map((p) => p.itemType)))
 			.filter(Boolean)
-			.sort((a, b) => (ITEM_TYPE_LABELS[a] ?? a).localeCompare(ITEM_TYPE_LABELS[b] ?? b, 'fr'))
+			.sort((a, b) => (ITEM_TYPE_LABELS[a] ?? a).localeCompare(ITEM_TYPE_LABELS[b] ?? b, 'en'))
 	);
 
 	const allTags = $derived(
 		Array.from(new Set(publications.flatMap((p) => p.tags ?? [])))
 			.filter(Boolean)
-			.sort((a, b) => a.localeCompare(b, 'fr'))
+			.sort((a, b) => a.localeCompare(b, 'en'))
 	);
 
 	// --- Filtrage et tri ---
-	const filtered = $derived(() => {
+	const filtered = $derived.by(() => {
 		let result = publications;
 
 		if (searchQuery.trim()) {
@@ -65,7 +66,7 @@
 							c.name?.toLowerCase().includes(q)
 					)
 			);
-		}
+			}
 
 		if (selectedType) {
 			result = result.filter((p) => p.itemType === selectedType);
@@ -84,7 +85,7 @@
 				(a, b) => toTimestamp(b.parsedDate) - toTimestamp(a.parsedDate)
 			);
 		} else if (sortOrder === 'title-asc') {
-			result = [...result].sort((a, b) => (a.title ?? '').localeCompare(b.title ?? '', 'fr'));
+			result = [...result].sort((a, b) => (a.title ?? '').localeCompare(b.title ?? '', 'en'));
 		}
 
 		return result;
@@ -106,7 +107,7 @@
 		selectedTag = '';
 	}
 
-	// Comptage par type pour les facettes
+	// Counts by type for the filter facets
 	const countByType = $derived(
 		Object.fromEntries(
 			allTypes.map((type) => [
@@ -127,38 +128,40 @@
 </script>
 
 <svelte:head>
-	<title>Bibliographie | {config.siteTitle}</title>
-	<meta name="description" content="Bibliographie du groupe de travail ICOM sur la documentation des expositions et performances." />
+	<title>Bibliography | {config.siteTitle}</title>
+	<meta name="description" content="Bibliography of the ICOM Working Group on Exhibition and Performance Documentation." />
 </svelte:head>
 
 <div class="bib-layout">
 	{#if data.zoteroPublications.error}
 		<p class="error">⚠️ {data.zoteroPublications.error}</p>
 	{:else}
-		<!-- En-tête -->
+		<!-- Page heading -->
 		<header class="bib-header">
-			<h1>Bibliographie</h1>
+			<div>
+				<h1>Bibliography</h1>
+			</div>
 			<p class="bib-count">
-				{filtered().length} résultat{filtered().length !== 1 ? 's' : ''}
-				{#if publications.length !== filtered().length}
-					<span class="bib-count-total">sur {publications.length}</span>
+				<strong>{filtered.length}</strong> {filtered.length === 1 ? 'item' : 'items'}
+				{#if publications.length !== filtered.length}
+					<span class="bib-count-total">of {publications.length}</span>
 				{/if}
 			</p>
 		</header>
 
-		<!-- Barre de recherche + contrôles -->
+		<!-- Search and controls -->
 		<div class="bib-toolbar">
 			<div class="bib-search-wrap">
-				<span class="bib-search-icon" aria-hidden="true">🔍</span>
+				<span class="bib-search-icon" aria-hidden="true"></span>
 				<input
 					class="bib-search"
 					type="search"
-					placeholder="Rechercher titres, auteurs, mots-clés…"
+					placeholder="Search titles, authors, keywords..."
 					bind:value={searchQuery}
-					aria-label="Recherche dans la bibliographie"
+					aria-label="Search the bibliography"
 				/>
 				{#if searchQuery}
-					<button class="bib-search-clear" onclick={() => (searchQuery = '')} aria-label="Effacer la recherche">✕</button>
+					<button class="bib-search-clear" onclick={() => (searchQuery = '')} aria-label="Clear search">×</button>
 				{/if}
 			</div>
 
@@ -169,24 +172,24 @@
 					onclick={() => (showFilters = !showFilters)}
 					aria-expanded={showFilters}
 				>
-					<span>Filtres</span>
+					<span>Filters</span>
 					{#if hasActiveFilters}<span class="bib-filter-badge"></span>{/if}
 				</button>
 
-				<label class="bib-sort-label" for="bib-sort">Trier</label>
+				<label class="bib-sort-label" for="bib-sort">Sort</label>
 				<select id="bib-sort" class="bib-sort" bind:value={sortOrder}>
-					<option value="date-desc">Date (récent → ancien)</option>
-					<option value="date-asc">Date (ancien → récent)</option>
-					<option value="title-asc">Titre (A → Z)</option>
+					<option value="date-desc">Newest first</option>
+					<option value="date-asc">Oldest first</option>
+					<option value="title-asc">Title (A–Z)</option>
 				</select>
 			</div>
 		</div>
 
-		<!-- Panneau de filtres -->
+		<!-- Filter panel -->
 		{#if showFilters}
 			<div class="bib-filters">
 				<div class="bib-filter-group">
-					<h3 class="bib-filter-heading">Type de document</h3>
+					<h3 class="bib-filter-heading">Document type</h3>
 					<ul class="bib-facet-list">
 						<li>
 							<button
@@ -194,7 +197,7 @@
 								class:selected={selectedType === ''}
 								onclick={() => (selectedType = '')}
 							>
-								<span class="bib-facet-label">Tous</span>
+								<span class="bib-facet-label">All types</span>
 								<span class="bib-facet-count">{publications.length}</span>
 							</button>
 						</li>
@@ -215,7 +218,7 @@
 
 				{#if allTags.length > 0}
 					<div class="bib-filter-group">
-						<h3 class="bib-filter-heading">Mots-clés</h3>
+						<h3 class="bib-filter-heading">Keywords</h3>
 						<ul class="bib-facet-list bib-facet-tags">
 							<li>
 								<button
@@ -223,7 +226,7 @@
 									class:selected={selectedTag === ''}
 									onclick={() => (selectedTag = '')}
 								>
-									Tous
+									All keywords
 								</button>
 							</li>
 							{#each allTags as tag}
@@ -244,53 +247,53 @@
 
 				{#if hasActiveFilters}
 					<button class="bib-clear-filters" onclick={clearFilters}>
-						Réinitialiser les filtres
+						Clear all filters
 					</button>
 				{/if}
 			</div>
 		{/if}
 
-		<!-- Filtres actifs (chips) -->
+		<!-- Active filters -->
 		{#if hasActiveFilters}
 			<div class="bib-active-filters" role="status" aria-live="polite">
 				{#if selectedType}
 					<span class="bib-chip">
 						{ITEM_TYPE_LABELS[selectedType] ?? selectedType}
-						<button onclick={() => (selectedType = '')} aria-label="Retirer le filtre type">✕</button>
+						<button onclick={() => (selectedType = '')} aria-label="Remove type filter">×</button>
 					</span>
 				{/if}
 				{#if selectedTag}
 					<span class="bib-chip">
 						#{selectedTag}
-						<button onclick={() => (selectedTag = '')} aria-label="Retirer le filtre tag">✕</button>
+						<button onclick={() => (selectedTag = '')} aria-label="Remove keyword filter">×</button>
 					</span>
 				{/if}
 				{#if searchQuery.trim()}
 					<span class="bib-chip">
-						« {searchQuery.trim()} »
-						<button onclick={() => (searchQuery = '')} aria-label="Effacer la recherche">✕</button>
+						“{searchQuery.trim()}”
+						<button onclick={() => (searchQuery = '')} aria-label="Clear search">×</button>
 					</span>
 				{/if}
 			</div>
 		{/if}
 
-		<!-- Résultats -->
+		<!-- Results -->
 		<main class="bib-results">
-			{#if filtered().length === 0}
+			{#if filtered.length === 0}
 				<div class="bib-empty">
-					<p>Aucun résultat pour ces critères.</p>
+					<p>No results match these filters.</p>
 					{#if hasActiveFilters}
-						<button class="bib-clear-filters" onclick={clearFilters}>Réinitialiser les filtres</button>
+						<button class="bib-clear-filters" onclick={clearFilters}>Clear all filters</button>
 					{/if}
 				</div>
 			{:else}
 				<ul class="publications-list">
-					{#each filtered() as publication (publication.key)}
+					{#each filtered as publication (publication.key)}
 						<li class="bib-item">
 							<span class="bib-item-type">{ITEM_TYPE_LABELS[publication.itemType] ?? publication.itemType}</span>
 							<ZoteroReference {publication} />
 							{#if publication.tags && publication.tags.length > 0}
-								<ul class="bib-item-tags" aria-label="Mots-clés">
+								<ul class="bib-item-tags" aria-label="Keywords">
 									{#each publication.tags as tag}
 										<li>
 											<button
@@ -304,18 +307,19 @@
 									{/each}
 								</ul>
 							{/if}
+							<ZoteroAddedMeta {publication} />
 						</li>
 					{/each}
 				</ul>
 			{/if}
 		</main>
 
-		<!-- Pied de page -->
+		<!-- Source information -->
 		{#if data.zoteroPublications.sourceUrl}
 			<footer class="bib-footer">
-				{#if updatedAt}Mis à jour le {updatedAt} ·{/if}
+				{#if updatedAt}Updated {updatedAt} ·{/if}
 				<a href={data.zoteroPublications.sourceUrl} target="_blank" rel="noopener noreferrer">
-					Source Zotero
+					View Zotero library
 				</a>
 			</footer>
 		{/if}
@@ -323,32 +327,44 @@
 </div>
 
 <style>
-	/* Layout */
-/* Après */
-.bib-layout {
-    padding-bottom: 2rem;
-}
+	.bib-layout {
+		padding-bottom: 2rem;
+	}
 
-	/* En-tête */
 	.bib-header {
 		display: flex;
-		align-items: baseline;
+		align-items: end;
+		justify-content: space-between;
 		gap: 1rem;
 		flex-wrap: wrap;
-		margin-bottom: 1.5rem;
-		border-bottom: 2px solid var(--color-accent, #2a5caa);
-		padding-bottom: 0.75rem;
+		padding: clamp(1.5rem, 5vw, 3.5rem) 0 1.5rem;
+		border-bottom: 1px solid var(--color-shadow);
+		margin-bottom: 1.25rem;
+	}
+
+	.bib-eyebrow {
+		margin: 0 0 0.6rem;
+		color: var(--color-secondary);
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
 	}
 
 	.bib-header h1 {
 		margin: 0;
-		font-size: 1.75rem;
+		font-size: clamp(2.2rem, 6vw, 4rem);
+		line-height: 1.05;
 	}
 
 	.bib-count {
 		margin: 0;
-		font-size: 0.9rem;
-		color: var(--color-text-muted, #666);
+		margin-bottom: 0.2rem;
+		font-size: 0.88rem;
+		color: var(--color-text-secondary);
+	}
+
+	.bib-count strong {
+		color: var(--color-link);
 	}
 
 	.bib-count-total {
@@ -356,19 +372,18 @@
 		opacity: 0.7;
 	}
 
-	/* Toolbar */
 	.bib-toolbar {
 		display: flex;
-		gap: 0.75rem;
+		gap: 0.65rem;
 		flex-wrap: wrap;
 		align-items: center;
-		margin-bottom: 1rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.bib-search-wrap {
 		position: relative;
 		flex: 1;
-		min-width: 220px;
+		min-width: min(220px, 100%);
 	}
 
 	.bib-search-icon {
@@ -376,23 +391,39 @@
 		left: 0.65rem;
 		top: 50%;
 		transform: translateY(-50%);
-		font-size: 0.85rem;
+		width: 0.8rem;
+		height: 0.8rem;
+		border: 1.5px solid currentColor;
+		border-radius: 50%;
+		color: var(--color-text-secondary);
 		pointer-events: none;
+	}
+
+	.bib-search-icon::after {
+		position: absolute;
+		right: -0.28rem;
+		bottom: -0.18rem;
+		width: 0.35rem;
+		border-top: 1.5px solid currentColor;
+		content: '';
+		transform: rotate(45deg);
 	}
 
 	.bib-search {
 		width: 100%;
-		padding: 0.5rem 2rem 0.5rem 2rem;
-		border: 1px solid var(--color-border, #ccc);
+		min-height: 2.75rem;
+		padding: 0.55rem 2.2rem 0.55rem 2.2rem;
+		border: 1px solid var(--color-shadow);
 		border-radius: 4px;
-		font-size: 0.95rem;
-		background: var(--color-bg, #fff);
-		color: var(--color-text, #222);
+		font-size: 0.92rem;
+		background: var(--color-bg);
+		color: var(--color-text);
 		box-sizing: border-box;
 	}
 
-	.bib-search:focus {
-		outline: 2px solid var(--color-accent, #2a5caa);
+	.bib-search:focus-visible {
+		border-color: var(--color-link);
+		outline: 2px solid color-mix(in srgb, var(--color-link) 25%, transparent);
 		outline-offset: 1px;
 	}
 
@@ -404,7 +435,7 @@
 		background: none;
 		border: none;
 		cursor: pointer;
-		color: var(--color-text-muted, #888);
+		color: var(--color-text-secondary);
 		font-size: 0.8rem;
 		padding: 0.2rem;
 		line-height: 1;
@@ -420,19 +451,20 @@
 		display: flex;
 		align-items: center;
 		gap: 0.35rem;
-		padding: 0.45rem 0.85rem;
-		border: 1px solid var(--color-border, #ccc);
+		min-height: 2.75rem;
+		padding: 0.45rem 0.75rem;
+		border: 1px solid var(--color-shadow);
 		border-radius: 4px;
-		background: var(--color-bg, #fff);
+		background: var(--color-bg);
 		cursor: pointer;
-		font-size: 0.9rem;
-		color: var(--color-text, #222);
+		font-size: 0.86rem;
+		color: var(--color-text);
 		position: relative;
 	}
 
 	.bib-filter-toggle.active {
-		border-color: var(--color-accent, #2a5caa);
-		color: var(--color-accent, #2a5caa);
+		border-color: var(--color-secondary);
+		color: var(--color-secondary);
 	}
 
 	.bib-filter-badge {
@@ -445,27 +477,27 @@
 
 	.bib-sort-label {
 		font-size: 0.85rem;
-		color: var(--color-text-muted, #666);
+		color: var(--color-text-secondary);
 		white-space: nowrap;
 	}
 
 	.bib-sort {
 		padding: 0.45rem 0.65rem;
-		border: 1px solid var(--color-border, #ccc);
+		min-height: 2.75rem;
+		border: 1px solid var(--color-shadow);
 		border-radius: 4px;
 		font-size: 0.875rem;
-		background: var(--color-bg, #fff);
-		color: var(--color-text, #222);
+		background: var(--color-bg);
+		color: var(--color-text);
 	}
 
-	/* Panneau filtres */
 	.bib-filters {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 1.5rem;
-		background: var(--color-bg-alt, #f5f5f5);
-		border: 1px solid var(--color-border, #ddd);
-		border-radius: 6px;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-shadow);
+		border-radius: 4px;
 		padding: 1.25rem;
 		margin-bottom: 1rem;
 	}
@@ -479,7 +511,7 @@
 		font-size: 0.78rem;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: var(--color-text-muted, #777);
+		color: var(--color-text-secondary);
 		margin: 0 0 0.6rem 0;
 	}
 
@@ -510,19 +542,19 @@
 		cursor: pointer;
 		font-size: 0.875rem;
 		text-align: left;
-		color: var(--color-text, #222);
+		color: var(--color-text);
 		gap: 0.5rem;
 	}
 
 	.bib-facet-item:hover {
-		background: var(--color-bg, #fff);
-		border-color: var(--color-border, #ccc);
+		background: var(--color-bg);
+		border-color: var(--color-shadow);
 	}
 
 	.bib-facet-item.selected {
-		background: var(--color-accent, #2a5caa);
-		color: #fff;
-		border-color: var(--color-accent, #2a5caa);
+		background: var(--color-link);
+		color: var(--color-bg);
+		border-color: var(--color-link);
 	}
 
 	.bib-facet-item.selected .bib-facet-count {
@@ -531,39 +563,38 @@
 
 	.bib-facet-count {
 		font-size: 0.75rem;
-		color: var(--color-text-muted, #888);
+		color: var(--color-text-secondary);
 		flex-shrink: 0;
 	}
 
 	.bib-tag-item {
 		padding: 0.25rem 0.6rem;
-		border: 1px solid var(--color-border, #ccc);
-		border-radius: 999px;
-		background: var(--color-bg, #fff);
+		border: 1px solid var(--color-shadow);
+		border-radius: 4px;
+		background: var(--color-bg);
 		cursor: pointer;
 		font-size: 0.8rem;
-		color: var(--color-text, #333);
+		color: var(--color-text);
 		display: inline-flex;
 		align-items: center;
 		gap: 0.3rem;
 	}
 
 	.bib-tag-item:hover {
-		border-color: var(--color-accent, #2a5caa);
-		color: var(--color-accent, #2a5caa);
+		border-color: var(--color-secondary);
+		color: var(--color-secondary);
 	}
 
 	.bib-tag-item.selected {
-		background: var(--color-accent, #2a5caa);
-		color: #fff;
-		border-color: var(--color-accent, #2a5caa);
+		background: var(--color-link);
+		color: var(--color-bg);
+		border-color: var(--color-link);
 	}
 
 	.bib-tag-item.selected .bib-facet-count {
 		color: rgba(255, 255, 255, 0.75);
 	}
 
-	/* Chips filtres actifs */
 	.bib-active-filters {
 		display: flex;
 		flex-wrap: wrap;
@@ -576,9 +607,9 @@
 		align-items: center;
 		gap: 0.3rem;
 		padding: 0.2rem 0.5rem 0.2rem 0.65rem;
-		background: var(--color-accent-light, #e8eef8);
-		color: var(--color-accent, #2a5caa);
-		border-radius: 999px;
+		background: var(--color-secondary-accent);
+		color: var(--color-secondary);
+		border-radius: 3px;
 		font-size: 0.8rem;
 	}
 
@@ -597,24 +628,22 @@
 		opacity: 1;
 	}
 
-	/* Bouton réinitialiser */
 	.bib-clear-filters {
 		background: none;
-		border: 1px solid var(--color-border, #ccc);
+		border: 1px solid var(--color-shadow);
 		border-radius: 4px;
 		padding: 0.3rem 0.75rem;
 		cursor: pointer;
 		font-size: 0.85rem;
-		color: var(--color-text-muted, #666);
+		color: var(--color-text-secondary);
 		align-self: flex-start;
 	}
 
 	.bib-clear-filters:hover {
-		border-color: var(--color-accent, #2a5caa);
-		color: var(--color-accent, #2a5caa);
+		border-color: var(--color-link);
+		color: var(--color-link);
 	}
 
-	/* Résultats */
 	.publications-list {
 		list-style: none;
 		padding: 0;
@@ -625,8 +654,17 @@
 	}
 
 	.bib-item {
-		padding: 1rem 0;
-		border-bottom: 1px solid var(--color-border, #e8e8e8);
+		position: relative;
+		padding: 1.25rem 0 1.25rem 1rem;
+		border-bottom: 1px solid var(--color-shadow);
+		border-left: 3px solid transparent;
+		transition: border-color 150ms ease, background-color 150ms ease;
+	}
+
+	.bib-item:hover,
+	.bib-item:focus-within {
+		border-left-color: var(--color-secondary);
+		background: linear-gradient(90deg, var(--color-secondary-accent), transparent 70%);
 	}
 
 	.bib-item:last-child {
@@ -637,8 +675,7 @@
 		display: inline-block;
 		font-size: 0.7rem;
 		text-transform: uppercase;
-		letter-spacing: 0.07em;
-		color: var(--color-text-muted, #888);
+		color: var(--color-text-secondary);
 		margin-bottom: 0.3rem;
 		font-weight: 600;
 	}
@@ -655,39 +692,36 @@
 	.bib-tag-chip {
 		background: none;
 		border: 1px solid var(--color-border, #ddd);
-		border-radius: 999px;
-		padding: 0.15rem 0.55rem;
+		border-radius: 3px;
+		padding: 0.2rem 0.5rem;
 		font-size: 0.75rem;
 		cursor: pointer;
-		color: var(--color-text-muted, #777);
+		color: var(--color-text-secondary);
 	}
 
 	.bib-tag-chip:hover {
-		border-color: var(--color-accent, #2a5caa);
-		color: var(--color-accent, #2a5caa);
+		border-color: var(--color-secondary);
+		color: var(--color-secondary);
 	}
 
-	/* Vide */
 	.bib-empty {
 		padding: 3rem 0;
 		text-align: center;
-		color: var(--color-text-muted, #888);
+		color: var(--color-text-secondary);
 	}
 
-	/* Footer */
 	.bib-footer {
 		margin-top: 2.5rem;
 		padding-top: 1rem;
-		border-top: 1px solid var(--color-border, #e8e8e8);
+		border-top: 1px solid var(--color-shadow);
 		font-size: 0.82rem;
-		color: var(--color-text-muted, #888);
+		color: var(--color-text-secondary);
 		display: flex;
 		gap: 0.4rem;
 		flex-wrap: wrap;
 		align-items: center;
 	}
 
-	/* Erreur */
 	.error {
 		padding: 1rem;
 		border-left: 3px solid #c0392b;
@@ -695,19 +729,36 @@
 		background: #fdf0ee;
 	}
 
-	/* Responsive */
-	@media (max-width: 600px) {
+	@media (max-width: 700px) {
 		.bib-toolbar {
 			flex-direction: column;
 			align-items: stretch;
 		}
 
 		.bib-controls {
-			justify-content: space-between;
+			display: grid;
+			grid-template-columns: auto auto minmax(0, 1fr);
+			gap: 0.5rem;
 		}
 
 		.bib-filters {
 			flex-direction: column;
+		}
+	}
+
+	@media (max-width: 420px) {
+		.bib-controls {
+			grid-template-columns: 1fr;
+		}
+
+		.bib-sort-label {
+			margin-top: 0.25rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.bib-item {
+			transition: none;
 		}
 	}
 </style>

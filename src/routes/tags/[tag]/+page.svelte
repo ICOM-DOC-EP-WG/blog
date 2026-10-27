@@ -3,7 +3,9 @@
 	import * as config from '$lib/config';
 	import ArticleCard from '$lib/components/ArticleCard.svelte';
 	import ProjectCard from '$lib/components/ProjectCard.svelte';
+	import TagList from '$lib/components/TagList.svelte';
 	import ZoteroReference from '$lib/components/ZoteroReference.svelte';
+	import ZoteroAddedMeta from '$lib/components/ZoteroAddedMeta.svelte';
 
 	let { data }: PageProps = $props();
 </script>
@@ -61,7 +63,13 @@
 	{:else}
 		<ul class="publications-list">
 			{#each data.publications as publication (publication.key)}
-				<ZoteroReference {publication} />
+				<li>
+					<ZoteroReference {publication} />
+					{#if publication.tags?.length}
+						<TagList tags={publication.tags} label="Publication keywords" />
+					{/if}
+					<ZoteroAddedMeta {publication} />
+				</li>
 			{/each}
 		</ul>
 	{/if}

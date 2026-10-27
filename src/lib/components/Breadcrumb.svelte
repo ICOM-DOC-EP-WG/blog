@@ -25,8 +25,8 @@
 		const path = toAppPath(page.url.pathname);
 		const items: BreadcrumbItem[] = [];
 
-		// Always add "Accueil" first
-		items.push({ title: 'Accueil', href: withBase('/') });
+		// Always add "Home" first
+		items.push({ title: 'Home', href: withBase('/') });
 
 		// Stop at root
 		if (path === '/') {
@@ -70,7 +70,7 @@
 </script>
 
 {#if breadcrumbs.length > 1}
-	<nav aria-label="Fil d'Ariane">
+	<nav aria-label="Breadcrumb">
 		<ol>
 			{#each breadcrumbs as item, index (item.href)}
 				<li aria-current={index === breadcrumbs.length - 1 ? 'page' : undefined}>
@@ -86,17 +86,41 @@
 {/if}
 
 <style>
+	nav {
+		margin: 0 0 0.75rem;
+		color: var(--color-secondary);
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+
 	nav ol {
 		display: flex;
 		flex-wrap: wrap;
 		list-style: none;
 		padding: 0;
+		margin: 0;
 		gap: 0.5rem;
+	}
+
+	nav a,
+	nav li:last-child {
+		color: var(--color-secondary);
+	}
+
+	nav a {
+		text-decoration: none;
+	}
+
+	nav a:hover,
+	nav a:focus-visible {
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
 	}
 
 	nav li:not(:last-child)::after {
 		content: '›';
 		margin-left: 0.5rem;
-		color: var(--color-text-secondary);
+		color: var(--color-secondary);
 	}
 </style>
